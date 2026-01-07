@@ -20,7 +20,7 @@ void send(char *string)
         U1TXREG = *string;
         while(!U1STAbits.TRMT);
         string++;
-        for(j = 0; j < 100; j++);
+      //  for(j = 0; j < 100; j++);
     }
     return;
 }
