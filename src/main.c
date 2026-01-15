@@ -32,7 +32,7 @@
 #pragma config WDTPOST = PS32768        // Watchdog Timer Postscaler (1:32,768)
 #pragma config WDTPRE = PR128           // WDT Prescaler (1:128)
 #pragma config WINDIS = OFF             // Watchdog Timer Window (Watchdog Timer in Non-Window mode)
-#pragma config FWDTEN = OFF              // Watchdog Timer Enable (Watchdog timer always enabled)  //Was on 12-30-25
+#pragma config FWDTEN = ON              // Watchdog Timer Enable (Watchdog timer always enabled)
 
 // FPOR
 #pragma config FPWRT = PWR128           // POR Timer Value (128ms)
@@ -45,17 +45,12 @@
 #pragma config ICS = PGD1               // Comm Channel Select (Communicate on PGC1/EMUC1 and PGD1/EMUD1)
 #pragma config JTAGEN = OFF             // JTAG Port Enable (JTAG is Disabled)
 
-// Define the register address to be modified
-#define REG_ADDR_07 0x07
-
 #include <xc.h>
 #include <stdio.h>
 #include <p33fj12mc202.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "I2C_BQ24195L_register.h"
 
 void init(void);
 int i = 1, j = 0;
@@ -64,8 +59,9 @@ void send(char*);
 void int_to_char(int);
 void send_char(char);
 int read_ad7680(void);
-void delay_ms(int);
 int buf0 = 0;
+int ad0 = 0, ad1 = 0, ad2 = 0, ad3 = 0, ad4 = 0, ad5 = 0, ad6 = 0, ad7 = 0, ad8 = 0, ad9 = 0, adA = 0, adB = 0, adC = 0, adD = 0, adE = 0, adF = 0;
+
 
 void __attribute__((__interrupt__, auto_psv)) _ISR _DefaultInterrupt(void)
 {   
@@ -77,7 +73,7 @@ void __attribute__((__interrupt__, auto_psv)) _ISR _DefaultInterrupt(void)
     else
         return;
 }
-/*
+
 void __attribute__((__interrupt__, auto_psv )) _ISR _ReceiveInterrupt (void)
 { 
     /*
@@ -89,55 +85,21 @@ void __attribute__((__interrupt__, auto_psv )) _ISR _ReceiveInterrupt (void)
     }
     else
         return; 
-     
+     * */
     return;
-}*/
-
-/******************************************************************************
- * Function:  void __attribute__((interrupt, no_auto_psv)) _MI2C1Interrupt(void)
- *
- * PreCondition:    None
- *
- * Input:           None
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        This serves the I2C Master Interrupt Service Routine.
- *****************************************************************************/
-void __attribute__ ( (interrupt, no_auto_psv) ) _MI2C1Interrupt( void )
-{
-    IFS1bits.MI2C1IF = 0;   //Clear the Master I2C Interrupt Flag;
 }
 
 void main(void) {
     init();
     int adc_value = 0;
-    char reg0 = 0;
-    
- //   char newValue = 0x35; // Example value
- //   write_BQ24195L_register(REG_ADDR_07, newValue);
     
     while(1)
     { 
-   //     adc_value = read_ad7680();
-     //   if(adc_value > 0){
-       //     int_to_char(adc_value);
-        //}
-     //   ack = I2C_Tx(BQ24195L_ADDR_WRITE);
-      //  ack = I2C_Tx(reg0);
-  //      send_char('a');
-             //Pg 10 in max17048 datasheet. ADC Measurement of VCell
-        reg0 = BQ24195L_ReadRegister(0x00);
-        delay_ms(100);
-        send_char(reg0);
-        delay_ms(100);
-      //  send_char(' ');
-      //  delay_ms(100);
-      //  send_char(' ');
-      //  delay_ms(100);
-
+        adc_value = read_ad7680();
+        if(adc_value > 0){
+            int_to_char(adc_value);
+        }
+        //delay_ms(200);
     }
     return;
 }

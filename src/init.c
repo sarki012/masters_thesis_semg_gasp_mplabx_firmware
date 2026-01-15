@@ -30,8 +30,6 @@ void init(void)
     TRISBbits.TRISB7 = 1;       //INT0
     TRISBbits.TRISB8 = 1;       //I2C SCL1
     TRISBbits.TRISB9 = 1;       //I2C SDA1
-    ODCBbits.ODCB8 = 1;         //SCL1 Is Open Drain
-    ODCBbits.ODCB9 = 1;          //SDA1  Is Open Drain
     TRISBbits.TRISB10 = 0;      //Bluetooth SW Button
     TRISBbits.TRISB11 = 0;      //Bluetooth P2_0
     TRISBbits.TRISB12 = 1;      //UART1 RX
@@ -61,9 +59,9 @@ void init(void)
  
     
     LATBbits.LATB6 = 1;
-    delay_ms(200);
+    delay_ms(1);
     LATBbits.LATB6 = 0;     //Reset (active low)
-    delay_ms(200);
+    delay_ms(1);
     LATBbits.LATB6 = 1;
    
     
@@ -102,7 +100,7 @@ void init(void)
     
     OSCCON = 0b0000000011000000;    //FRC 7.37 MHz
     U1BRG = 7;                      //BAUD RATE 115,200
-   // U1BRG = 95;                      //BAUD RATE 9,600
+ //   U1BRG = 95;                      //BAUD RATE 9,600
     
     IEC0bits.U1TXIE = 0;        //No transmit interrupt (We poll TRMT)
    
@@ -125,23 +123,9 @@ void init(void)
     
     PORTBbits.RB3 = 1;        //De-select the AD7680 (active low)
     
-    SPI1STATbits.SPIEN = 0;     //(Dis)Enable SPI
-    //////////////// End of SPI Config /////////////////////////////////////////
+    SPI1STATbits.SPIEN = 1;     //Enable SPI
+    //////////////// End of SPI Config /////////////////////////////////////
     
-    //////////////// I2C Config For PMIC and Fuel Gauge ////////////////////////
- //   I2C1CONbits.I2CEN = 0;      //Disable I2C
-    I2C1CONbits.I2CSIDL = 0;    //Continue operation in idle mode
-    I2C1CONbits.A10M = 0;       //Slave address is 7 bits
-  //  I2C1CONbits.ACKDT = 0;      //Send ACK during acknowledge
-    I2C1BRG = 34;
-    //    I2C1BRG = 32;
-   // I2C1BRG = 8;
-  //  I2C1BRG = 17;               //100KHz BRG = (FOSC/2)/(2*100,000) - 1
-    I2C1CONbits.DISSLW = 1;     // Disable slew rate control (for 400kHz operation)
-    IEC1bits.MI2C1IE = 0;       //Disable I2C interrupts
-    I2C1CONbits.ACKDT = 0;      //Send ACK during acknowledge
-    I2C1CONbits.I2CEN = 1;      //Enable I2C
-    //////////////// End of I2C Cofig For PMIC and Fuel Gauge //////////////////
     
   //  IEC0bits.U1RXIE = 1;        //UART receive interrupt enabled
    // IPC2bits.U1RXIP2 = 1;

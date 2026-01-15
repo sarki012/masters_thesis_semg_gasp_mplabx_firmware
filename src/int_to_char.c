@@ -13,9 +13,11 @@
 #include <string.h>
 
 void send_char(char);
+//extern int buf_count;
 
 void int_to_char(int number)
 {
+    static int buf_count = 0;
     char d0 = 0, d1 = 0, d2 = 0, d3 = 0, d4 = 0;
     switch(number%10) {
         case 0 :
@@ -207,14 +209,19 @@ void int_to_char(int number)
             d4 = '-';
     }
         
-    send_char('a');
     send_char(d4);
     send_char(d3);
     send_char(d2);
     send_char(d1);
     send_char(d0);
+    send_char('a');
+    if(buf_count >= 100) {
+        send_char('\r');
+        buf_count = 0;
+    }
+    buf_count++;
 
- //   delay_ms(100);
+   // delay_ms(100);
 
     return;
 }
