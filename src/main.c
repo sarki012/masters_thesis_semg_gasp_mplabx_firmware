@@ -60,7 +60,6 @@ void int_to_char(int);
 void send_char(char);
 int read_ad7680(void);
 int buf0 = 0;
-char received_data = 0;
 
 void __attribute__((__interrupt__, auto_psv)) _ISR _DefaultInterrupt(void)
 {   
@@ -88,7 +87,6 @@ void __attribute__((__interrupt__, auto_psv)) _ISR _U1RXInterrupt(void) {
 
     // Clear the UART receive interrupt flag
     IFS0bits.U1RXIF = 0;     // MUST clear the interrupt flag, or the ISR will fire again immediately
-}
 
 void main(void) {
     init();
