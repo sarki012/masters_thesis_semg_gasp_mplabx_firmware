@@ -30,8 +30,6 @@ void init(void)
     TRISBbits.TRISB7 = 1;       //INT0
     TRISBbits.TRISB8 = 1;       //I2C SCL1
     TRISBbits.TRISB9 = 1;       //I2C SDA1
-    ODCBbits.ODCB8 = 1;         //SCL1 Is Open Drain
-    ODCBbits.ODCB9 = 1;          //SDA1  Is Open Drain
     TRISBbits.TRISB10 = 0;      //Bluetooth SW Button
     TRISBbits.TRISB11 = 0;      //Bluetooth P2_0
     TRISBbits.TRISB12 = 1;      //UART1 RX
@@ -61,9 +59,9 @@ void init(void)
  
     
     LATBbits.LATB6 = 1;
-    delay_ms(200);
+    delay_ms(1);
     LATBbits.LATB6 = 0;     //Reset (active low)
-    delay_ms(200);
+    delay_ms(1);
     LATBbits.LATB6 = 1;
    
     
@@ -102,12 +100,27 @@ void init(void)
     
     OSCCON = 0b0000000011000000;    //FRC 7.37 MHz
     U1BRG = 7;                      //BAUD RATE 115,200
-   // U1BRG = 95;                      //BAUD RATE 9,600
+ //   U1BRG = 95;                      //BAUD RATE 9,600
     
+   /////////////////////////////////////////////////////
+    // 1. Configure UART module (Baud rate, data bits, parity, etc.)
+ //   U1MODEbits.UARTEN = 0;   // Disable UART for configuration
+    // ... other U1MODE settings (e.g., U1MODEbits.PDSEL, U1MODEbits.STSEL)
+    U1STAbits.URXISEL = 0;   // Interrupt flag bit is set when the receive buffer is not empty (i.e., has at least one character)
+    // 2. Clear the UART receive interrupt flag
+    IFS0bits.U1RXIF = 0;     // Ensure the interrupt flag is clear before enabling
+    // 3. Set the UART receive interrupt priority (optional, 1-7, 0 disables)
+    IPC2bits.U1RXIP = 4;     // Set priority level (adjust as needed)
+    // 4. Enable the UART receive interrupt in the Interrupt Enable Control register
+    IEC0bits.U1RXIE = 1;     // Enable the receive interrupt
+    // 5. Enable the UART module
+ //   U1MODEbits.UARTEN = 1;   // Re-enable UART
+    
+    ////////////////////////
     IEC0bits.U1TXIE = 0;        //No transmit interrupt (We poll TRMT)
    
     LATBbits.LATB10 = 1;        //SW Button
-    LATBbits.LATB5 = 0;         //Wakeup
+    LATBbits.LATB5 = 1;         //Wakeup
     
     ///////////////// SPI Config ///////////////////////////////////////////
     SPI1STATbits.SPIEN = 0;     //Disable SPI
@@ -125,23 +138,9 @@ void init(void)
     
     PORTBbits.RB3 = 1;        //De-select the AD7680 (active low)
     
-    SPI1STATbits.SPIEN = 0;     //(Dis)Enable SPI
-    //////////////// End of SPI Config /////////////////////////////////////////
+    SPI1STATbits.SPIEN = 1;     //Enable SPI
+    //////////////// End of SPI Config /////////////////////////////////////
     
-    //////////////// I2C Config For PMIC and Fuel Gauge ////////////////////////
- //   I2C1CONbits.I2CEN = 0;      //Disable I2C
-    I2C1CONbits.I2CSIDL = 0;    //Continue operation in idle mode
-    I2C1CONbits.A10M = 0;       //Slave address is 7 bits
-  //  I2C1CONbits.ACKDT = 0;      //Send ACK during acknowledge
-    I2C1BRG = 34;
-    //    I2C1BRG = 32;
-   // I2C1BRG = 8;
-  //  I2C1BRG = 17;               //100KHz BRG = (FOSC/2)/(2*100,000) - 1
-    I2C1CONbits.DISSLW = 1;     // Disable slew rate control (for 400kHz operation)
-    IEC1bits.MI2C1IE = 0;       //Disable I2C interrupts
-    I2C1CONbits.ACKDT = 0;      //Send ACK during acknowledge
-    I2C1CONbits.I2CEN = 1;      //Enable I2C
-    //////////////// End of I2C Cofig For PMIC and Fuel Gauge //////////////////
     
   //  IEC0bits.U1RXIE = 1;        //UART receive interrupt enabled
    // IPC2bits.U1RXIP2 = 1;

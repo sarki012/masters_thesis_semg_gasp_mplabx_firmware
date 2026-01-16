@@ -17,7 +17,7 @@ void send_char(char letter)
     int j = 0;
     U1TXREG = letter;
     while(!U1STAbits.TRMT);
-    for(j = 0; j < 100; j++);
+  //  for(j = 0; j < 100; j++);
 
     return;
 }
