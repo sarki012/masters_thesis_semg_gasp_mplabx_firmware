@@ -60,8 +60,6 @@ void int_to_char(int);
 void send_char(char);
 int read_ad7680(void);
 int buf0 = 0;
-int ad0 = 0, ad1 = 0, ad2 = 0, ad3 = 0, ad4 = 0, ad5 = 0, ad6 = 0, ad7 = 0, ad8 = 0, ad9 = 0, adA = 0, adB = 0, adC = 0, adD = 0, adE = 0, adF = 0;
-
 
 void __attribute__((__interrupt__, auto_psv)) _ISR _DefaultInterrupt(void)
 {   
@@ -74,20 +72,21 @@ void __attribute__((__interrupt__, auto_psv)) _ISR _DefaultInterrupt(void)
         return;
 }
 
-void __attribute__((__interrupt__, auto_psv )) _ISR _ReceiveInterrupt (void)
-{ 
-    /*
-    if(IFS0bits.AD1IF)
-    {
-        IFS0bits.AD1IF = 0;
-        buf0 = ADC1BUF8;
-        int_to_char(buf0);
+// UART1 Receive Interrupt Service Routine (ISR)
+void __attribute__((__interrupt__, auto_psv)) _ISR _U1RXInterrupt(void) {
+    // Check for errors (optional, but good practice)
+    if (U1STAbits.OERR) {    // Check for Overrun Error
+        U1STAbits.OERR = 0;  // Clear the OERR bit to reset the receive buffer
     }
-    else
-        return; 
-     * */
-    return;
-}
+    // Read the received data from the buffer
+    // Reading U1RXREG automatically clears the URXDA flag
+    received_data = U1RXREG;
+
+    // Process the received data here (e.g., store in a buffer, respond)
+    // ... your code ...
+
+    // Clear the UART receive interrupt flag
+    IFS0bits.U1RXIF = 0;     // MUST clear the interrupt flag, or the ISR will fire again immediately
 
 void main(void) {
     init();

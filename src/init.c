@@ -102,10 +102,25 @@ void init(void)
     U1BRG = 7;                      //BAUD RATE 115,200
  //   U1BRG = 95;                      //BAUD RATE 9,600
     
+   /////////////////////////////////////////////////////
+    // 1. Configure UART module (Baud rate, data bits, parity, etc.)
+ //   U1MODEbits.UARTEN = 0;   // Disable UART for configuration
+    // ... other U1MODE settings (e.g., U1MODEbits.PDSEL, U1MODEbits.STSEL)
+    U1STAbits.URXISEL = 0;   // Interrupt flag bit is set when the receive buffer is not empty (i.e., has at least one character)
+    // 2. Clear the UART receive interrupt flag
+    IFS0bits.U1RXIF = 0;     // Ensure the interrupt flag is clear before enabling
+    // 3. Set the UART receive interrupt priority (optional, 1-7, 0 disables)
+    IPC2bits.U1RXIP = 4;     // Set priority level (adjust as needed)
+    // 4. Enable the UART receive interrupt in the Interrupt Enable Control register
+    IEC0bits.U1RXIE = 1;     // Enable the receive interrupt
+    // 5. Enable the UART module
+ //   U1MODEbits.UARTEN = 1;   // Re-enable UART
+    
+    ////////////////////////
     IEC0bits.U1TXIE = 0;        //No transmit interrupt (We poll TRMT)
    
     LATBbits.LATB10 = 1;        //SW Button
-    LATBbits.LATB5 = 0;         //Wakeup
+    LATBbits.LATB5 = 1;         //Wakeup
     
     ///////////////// SPI Config ///////////////////////////////////////////
     SPI1STATbits.SPIEN = 0;     //Disable SPI
